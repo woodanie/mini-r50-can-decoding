@@ -10,6 +10,7 @@ Decoding CAN bus frames for MINI Generation 1 (R50, R52, R53)
   - [Handbrake warning light](#handbrake-warning-light)
 - [0x61A (1562)](#0x61a-1562)
   - [Bytes](#bytes-2)
+  - [Display text](#display-text)
   - [Odometer](#odometer)
   - [Trip odometer](#trip-odometer)
   - [Clock](#clock)
@@ -93,33 +94,74 @@ Outside temperature in increments of 1°C.
 
 ## 0x61A (1562)
 
+Odometer, trip odometer, clock, display text
+
 ### Bytes
 
 - Byte 0: Odometer LSB
   - Increments of `1` (km)
 - Byte 1: Odometer
   - Increments of `256` (km)
-- Byte 2: Odometer MSB
-  - Increments of `65536` (km)\
-    `0x00` = 0\
-    `0x01` = 65536\
-    `0x02` = 131072
+- Byte 2: Display text in high nibble, odometer MSB in low nibble.
 - Byte 3: Time in minutes, or value of trip odometer in increments of `0.1` km
 - Byte 4: Time in hours, or value of trip odometer in increments of `25.6` km
 - Byte 5
 - Byte 6
-- Byte 7: Trip or Clock selected, and the current option selected on the LCD display.
+- Byte 7: Trip or Clock selected, and the current on board computer option selected.
+
+
+### Display text
+
+High nibble contains of byte 2 contains display text, including units, inspection, oil service.
+
+- Units in kilometers or miles
+
+  ```
+        ↓
+  0x00 (00000000)  # Displays "km"
+  0x80 (10000000)  # Displays "mls"
+  ```
+
+- Oil service
+
+  ```
+         ↓
+  0x40 (01000000)  # Displays "oil service"
+  ```
+
+- Clock icon
+  ```
+          ↓
+  0x20 (00100000)  # Displays a clock icon
+  ```
+
+- Inspection
+  ```
+           ↓
+  0x10 (00010000)  # Displays "insp."
+  ```
 
 ### Odometer
 
-- Byte 2 is MSB, byte 0 is LSB.
-- 0x `B2` + `B1` + `B0` to decimal
+- Byte 0: Odometer LSB. Increments of `1`
+- Byte 1: Odometer. Increments of `256`
+- Byte 2: In low nibble, odometer MSB. Increments of `65536`.\
+  `0x00` = 0\
+  `0x01` = 65536\
+  `0x02` = 131072\
+  etc.. to\
+  `0x0F` = 983040 (max value)
 
-  e.g.
+- Low nibble of `B2` + `B1` + `B0` to decimal
+- Odometer maximum value: `999999`
+- e.g.
 
   ```
-        B0 B1 B2                      B2   B1   B0
-  0x61A 97 F9 01 D7 47 76 07 03  # 0x 01 + F9 + 97 = 0x01F997 → to decimal = 129431 km
+                            (low nibble of B2)
+                                      ↓
+        B0 B1 B2                     B2   B1   B0
+  0x61A 97 F9 01 D7 47 76 07 03  # 0x 1 + F9 + 97 = 0x1F997 → to decimal = 129431 km
+  0x61A 3F 42 0F D7 47 76 07 03  # 0x F + 42 + 3F = 0xF423F → to decimal = 999999 km (maximum value)
   ```
 
 ### Trip odometer
@@ -174,7 +216,7 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
    - e.g.
      ```
                     B3 B4
-     0x61A 5B 03 02 A1 50 00 00 87  # 10:21      
+     0x61A 5B 03 02 A1 50 00 00 87  # 10:21
      0x61A 5B 03 02 B2 53 00 00 87  # 13:32
      0x61A 5B 03 02 D9 56 00 00 87  # 16:59
      ```
@@ -358,8 +400,8 @@ Brighness of center and tachometer gauge.
 When lights are off, B1 is `3F` regardless of brightness when lights were on.
 
 0x61F Byte 1
-- `00` = minumum brightness
-- `3F` = maximum brightness, or when lights off.
+- `00` (`00000000`) = minumum brightness
+- `3F` (`00111111`) = maximum brightness, or when lights off.
 
 ### Indicator/warning lights
 
