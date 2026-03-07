@@ -99,46 +99,54 @@ Odometer, trip odometer, clock, display text
 ### Bytes
 
 - Byte 0: Odometer LSB
-  - Increments of `1` (km)
+  - Increments of `1`
 - Byte 1: Odometer
-  - Increments of `256` (km)
+  - Increments of `256`
 - Byte 2: Display text in high nibble, odometer MSB in low nibble.
-- Byte 3: Time in minutes, or value of trip odometer in increments of `0.1` km
-- Byte 4: Time in hours, or value of trip odometer in increments of `25.6` km
-- Byte 5
-- Byte 6
+- Byte 3: Time in minutes, or value of trip odometer in increments of `0.1`
+- Byte 4: Time in hours, or value of trip odometer in increments of `25.6`
+- Byte 5: Value of on board computer option
+- Byte 6: Value of on board computer option
 - Byte 7: Trip or Clock selected, and the current on board computer option selected.
 
 
-### Display text
+### Display text on speedometer
 
 High nibble contains of byte 2 contains display text, including units, inspection, oil service.
 
-- Units in kilometers or miles
+- Speedometer units in kilometers or miles
+  - Kilometers: displays `km`.
+  - Miles: On dual gauge (chrono pack) pre-facelift displays `miles`, facelift displays `mls`.
 
   ```
         ↓
-  0x00 (00000000)  # Displays "km"
-  0x80 (10000000)  # Displays "mls"
+  0x00 (00000000)  # Kilometers
+  0x80 (10000000)  # Miles
   ```
 
 - Oil service
 
+  Displays "oil service"
+
   ```
          ↓
-  0x40 (01000000)  # Displays "oil service"
+  0x40 (01000000)
   ```
 
 - Clock icon
+
   ```
           ↓
-  0x20 (00100000)  # Displays a clock icon
+  0x20 (00100000)
   ```
 
 - Inspection
+
+  On dual gauge (chrono pack) pre-facelift displays "inspect.", facelift displays "insp."
+
   ```
            ↓
-  0x10 (00010000)  # Displays "insp."
+  0x10 (00010000)
   ```
 
 ### Odometer
@@ -160,8 +168,8 @@ High nibble contains of byte 2 contains display text, including units, inspectio
                             (low nibble of B2)
                                       ↓
         B0 B1 B2                     B2   B1   B0
-  0x61A 97 F9 01 D7 47 76 07 03  # 0x 1 + F9 + 97 = 0x1F997 → to decimal = 129431 km
-  0x61A 3F 42 0F D7 47 76 07 03  # 0x F + 42 + 3F = 0xF423F → to decimal = 999999 km (maximum value)
+  0x61A 97 F9 01 D7 47 76 07 03  # 0x 1 + F9 + 97 = 0x1F997 → to decimal = 129431
+  0x61A 3F 42 0F D7 47 76 07 03  # 0x F + 42 + 3F = 0xF423F → to decimal = 999999 (maximum value)
   ```
 
 ### Trip odometer
@@ -179,7 +187,6 @@ The trip odometer is only displayed when byte 7 bit 0 is `0`. (`1` is clock)
 0x09 (00001001): Trip and "Cons."
 ```
 
-
 - Minimum value: `0.0`, Maximum value: `999.9`
 - (0xB4+B3)/10
 
@@ -187,10 +194,10 @@ The trip odometer is only displayed when byte 7 bit 0 is `0`. (`1` is clock)
 
   ```
                  B3 B4
-  0x61A 97 F8 01 00 00 76 07 03  # 0.0 km
-  0x61A 97 F8 01 01 00 76 07 03  # 0x0001 → to decimal = 1   →   1/10 =  0.1 km
-  0x61A 97 F8 01 00 01 76 07 03  # 0x0100 → to decimal = 256 → 256/10 = 25.6 km
-  0x61A 97 F8 01 01 01 76 07 03  # 0x0101 → to decimal = 257 → 257/10 = 25.7 km
+  0x61A 97 F8 01 00 00 76 07 03  # 0.0
+  0x61A 97 F8 01 01 00 76 07 03  # 0x0001 → to decimal = 1   →   1/10 =  0.1
+  0x61A 97 F8 01 00 01 76 07 03  # 0x0100 → to decimal = 256 → 256/10 = 25.6
+  0x61A 97 F8 01 01 01 76 07 03  # 0x0101 → to decimal = 257 → 257/10 = 25.7
   ```
 
 ### Clock
@@ -210,16 +217,44 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
 0x89 (10001001): Clock and "Cons."
 ```
 
-- Time (24h)
+- Time
    - B3 sets minutes
    - B4 sets hours
    - e.g.
      ```
                     B3 B4
      0x61A 5B 03 02 A1 50 00 00 87  # 10:21
+     0x61A 5B 03 02 A2 50 00 00 87  # 10:22
      0x61A 5B 03 02 B2 53 00 00 87  # 13:32
      0x61A 5B 03 02 D9 56 00 00 87  # 16:59
      ```
+
+- 12h clock
+
+  - AM is set by byte 7 bit 1.
+
+    ```
+                                            AM
+                                            ↓
+    0x61A 5B 03 02 A1 50 00 00 C7  # 0xC7 (11001001) = 10:21 AM
+    ```
+
+  - PM is set by byte 7 bit 2.
+
+    ```
+                                             PM
+                                             ↓
+    0x61A 5B 03 02 A1 50 00 00 A7  # 0xA7 (10101001) = 10:21 PM
+    ```
+
+- 24h clock when byte 7 bit 1 and bit 2 are set to 0.
+
+  ```
+                                          00
+                                          ↓↓
+  0x61A 5B 03 02 A1 50 00 00 87  # 0x87 (10000111) = 10:21
+  ```
+
 
 - When time is not set:
   - B4 will be `7F`
@@ -286,9 +321,9 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
 
   ```
                        B5 B6 B7
-  0x61A 77 FB 01 BE 47 BC 07 03  # 198km range
-  0x61A 77 FB 01 C6 47 76 07 03  # 191km range
-  0x61A 79 FB 01 D4 47 3A 07 03  # 185km range
+  0x61A 77 FB 01 BE 47 BC 07 03  # 198 range
+  0x61A 77 FB 01 C6 47 76 07 03  # 191 range
+  0x61A 79 FB 01 D4 47 3A 07 03  # 185 range
   ```
 
 #### Ave. Cons.
@@ -361,7 +396,7 @@ Current fuel consumption. Displayed only when byte 7 is either `0x09` ("Trip" an
                        B5 B6 B7
   0x61A 77 FB 01 BF 47 0E 01 07  # 0x010E → to decimal = 270 → 270/10 = 27 km/h
   0x61A 77 FB 01 BF 47 36 01 07  # 0x0136 → to decimal = 310 → 310/10 = 31 km/h
-  0x61A 78 FB 01 CF 47 E4 02 07  # 0x02E4 → to decimal = 740 → 740/10 = 74 km/h
+  0x61A 77 FB 01 CF 47 E4 02 07  # 0x02E4 → to decimal = 740 → 740/10 = 74 km/h
   ```
 
 When `---` is displayed, B5 will be `FE`, B6 will be `7F`
