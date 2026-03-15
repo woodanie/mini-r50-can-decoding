@@ -12,15 +12,17 @@ BO_ 1557 x615: 8 Vector__XXX
 	SG_ Handbrake : 33|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 1562 x61A: 8 Vector__XXX
-	SG_ OBC_Option : 56|4@1+ (1,0) [1|9] "" Vector__XXX
-	SG_ OBC_Value : 40|16@1+ (0.1,0) [0|0] "" Vector__XXX
-	SG_ Clock_Or_Trip : 63|1@1+ (1,0) [0|1] "" Vector__XXX
 	SG_ Odometer : 0|20@1+ (1,0) [0|999999] "" Vector__XXX
 	SG_ Inspection_Text : 20|1@1+ (1,0) [0|1] "" Vector__XXX
 	SG_ Clock_Icon : 21|1@1+ (1,0) [0|1] "" Vector__XXX
 	SG_ Oil_Service_Text : 22|1@1+ (1,0) [0|1] "" Vector__XXX
 	SG_ Units_KM_Miles : 23|1@1+ (1,0) [0|1] "" Vector__XXX
 	SG_ Trip_Odometer : 24|14@1+ (0.1,0) [0|999.9] "" Vector__XXX
+	SG_ OBC_Value : 40|16@1+ (0.1,0) [0|0] "" Vector__XXX
+	SG_ OBC_Option : 56|4@1+ (1,0) [1|9] "" Vector__XXX
+	SG_ Clock_PM : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Clock_AM : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Clock_Or_Trip : 63|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 1567 x61F: 8 Vector__XXX
     SG_ LED_Brightness_Level : 8|6@1+ (1,0) [0|63] "" Vector__XXX
