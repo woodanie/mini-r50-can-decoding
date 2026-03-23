@@ -2,12 +2,21 @@
 
 Decoding CAN bus frames for MINI Generation 1 (R50, R52, R53)
 
+- [0x153 (339)](#0x153-339)
+- [0x1F0 (496)](#0x1f0-496)
+- [0x1F8 (504)](#0x1f8-504)
 - [0x316 (790)](#0x316-790)
   - [RPM](#rpm)
+- [0x329 (809)](#0x329-809)
+- [0x336 (822)](#0x336-822)
+- [0x545 (1349)](#0x545-1349)
+- [0x565 (1381)](#0x565-1381)
+- [0x613 (1555)](#0x613-1555)
 - [0x615 (1557)](#0x615-1557)
   - [Bytes](#bytes-1)
   - [Outside Temperature](#outside-temperature)
   - [Handbrake warning light](#handbrake-warning-light)
+- [0x618 (1560)](#0x618-1560)
 - [0x61A (1562)](#0x61a-1562)
   - [Bytes](#bytes-2)
   - [Display text](#display-text)
@@ -29,6 +38,15 @@ Decoding CAN bus frames for MINI Generation 1 (R50, R52, R53)
     - [Dual gauges (Chrono pack or Navigation system)](#dual-gauges-chrono-pack-or-navigation-system))
     - [Single tachometer gauge](#single-tachometer-gauge)
     - [RPM redline segments](#rpm-redline-segments)
+- [0x630 (1584)](#0x630-1584)
+
+## 0x153 (339)
+
+Speed.
+
+## 0x1F0 (496)
+
+## 0x1F8 (504)
 
 ## 0x316 (790)
 
@@ -56,6 +74,20 @@ RPM.
   0x316 01 00 80 51 00 00 00 00  # 0x 51 + 80 = 0x5180 → to decimal = 20864 → 20864/6.4 = 3260 RPM
   0x316 01 00 C0 55 00 00 00 00  # 0x 55 + C0 = 0x55C0 → to decimal = 21952 → 21952/6.4 = 3430 RPM
   ```
+
+## 0x329 (809)
+
+Coolant temp.
+
+## 0x336 (822)
+
+## 0x545 (1349)
+
+## 0x565 (1381)
+
+## 0x613 (1555)
+
+Fuel level, and low fuel light.
 
 ## 0x615 (1557)
 
@@ -92,6 +124,8 @@ Outside temperature in increments of 1°C.
 0x615 00 00 00 13 00 00 00 00  # 0x00 (00000000) = off
 0x615 00 00 00 01 02 00 00 00  # 0x02 (00000010) = on
 ```
+
+## 0x618 (1560)
 
 ## 0x61A (1562)
 
@@ -569,3 +603,5 @@ Byte 4:
 
 - `0xFC` (`11111100`) = 5500 RPM redline (1.4 diesel `One D`)
 - `0x40` (`01000000`) = 6750 RPM redline (1.6 petrol `One`, `Cooper`, and `Cooper S`)
+
+## 0x630 (1584)
