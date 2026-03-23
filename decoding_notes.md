@@ -14,7 +14,8 @@ Decoding CAN bus frames for MINI Generation 1 (R50, R52, R53)
   - [Odometer](#odometer)
   - [Trip odometer](#trip-odometer)
   - [Clock](#clock)
-  - [On-board Computer display options](#on-board-computer-display-options)
+  - [On-board Computer display](#on-board-computer-display)
+    - [Units](#units)
     - [Temp](#temp)
     - [Range](#range)
     - [Ave. Cons.](#ave-cons)
@@ -94,21 +95,26 @@ Outside temperature in increments of 1°C.
 
 ## 0x61A (1562)
 
-Odometer, trip odometer, clock, display text
+Odometer, trip odometer, clock, display text, on-board computer units.
 
 ### Bytes
 
-- Byte 0: Odometer LSB
-  - Increments of `1`
-- Byte 1: Odometer
-  - Increments of `256`
-- Byte 2: Display text in high nibble, odometer MSB in low nibble.
-- Byte 3: Time in minutes, or value of trip odometer in increments of `0.1`
-- Byte 4: Time in hours, or value of trip odometer in increments of `25.6`
+- Byte 0: Odometer LSB (Increments of `1`)
+- Byte 1: Odometer (Increments of `256`)
+- Byte 2:
+  - Display text in high nibble.
+  - Odometer MSB in low nibble.
+- Byte 3:
+  - When clock selected: time in minutes.
+  - When trip selected: trip odometer (increments of `0.1`).
+- Byte 4:
+  - On-board computer units
+  - Time in hours, or trip odometer (increments of `25.6`.)
 - Byte 5: Value of on board computer option
 - Byte 6: Value of on board computer option
-- Byte 7: Trip or Clock selected, and the current on board computer option selected.
-
+- Byte 7:
+  - Trip or Clock selected.
+  - Current on board computer option selected.
 
 ### Display text on speedometer
 
@@ -160,7 +166,7 @@ High nibble contains of byte 2 contains display text, including units, inspectio
   etc.. to\
   `0x0F` = 983040 (max value)
 
-- Low nibble of `B2` + `B1` + `B0` to decimal
+- `B2`(low nibble) + `B1` + `B0` to decimal
 - Odometer maximum value: `999999`
 - e.g.
 
@@ -186,6 +192,8 @@ The trip odometer is only displayed when byte 7 bit 0 is `0`. (`1` is clock)
 0x07 (00000111): Trip and "Speed"
 0x09 (00001001): Trip and "Cons."
 ```
+
+When trip odometer is selected, value is set in B3 and B4.
 
 - Minimum value: `0.0`, Maximum value: `999.9`
 - (0xB4+B3)/10
@@ -266,7 +274,7 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
   0x61A 5B 03 02 FE 7F 00 00 87  # --:--
   ```
 
-### On-board Computer display options
+### On-board Computer display
 
 - On cars with the On-board Computer the display options are:
   - `Temp`
@@ -283,13 +291,61 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
   0x61A   0x77 0xFB 0x01 0xBE 0x47 0xBE 0x00 0x02
   ```
 
+### Units
+
+Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
+
+```
+↓↓
+00xxxxxx
+00xxxxxx
+01xxxxxx
+11xxxxxx
+```
+
+- `00xxxxxx`: no units shown
+
+- `10xxxxxx`: units in `°F`, `miles`, `mph`, `mpg`
+  - Units:
+    - `Temp`: `°F`
+    - `Speed`: `mph`
+    - `Cons`: `mpg`
+    - `Ave. Cons.`: `mpg`
+    - `Ave. Speed`: `mph`
+    - `Range`: `miles`
+
+- `01xxxxxx`: units in `°C`, `km`, `km/h`, `km/L`
+  - Units:
+    - `Temp`: `°C`
+    - `Speed`: `km/h`
+    - `Cons`: `km/L`
+    - `Ave. Cons.`: `km/L`
+    - `Ave speed`: `km/h`
+    - `Range`: `km`
+
+- `11xxxxxx`: units in `°C`, `km`, `km/h`, `l/100km`
+  - Units:
+    - `Temp`: `°C`
+    - `Speed`: `km/h`
+    - `Cons`: `l/100km`
+    - `Ave. Cons.`: `l/100km`
+    - `Ave. Speed`: `km/h`
+    - `Range`: `km`
+
 #### Temp
 
-- Temperature is displayed only when byte 7 is either `0x02` ("Temp" and "Trip"), or `0x82` ("Temp" and "Clock")
 - Outside temperature in increments of 0.5°C
-- `Temp` info option must be selected
-  - Byte 7 = `0x02` (Trip and "Temp"), or `0x82` "Clock" and "Temp")
-- (0xB6+B5)/10
+- Outside air temperature is displayed only when byte 7 low nibble is `2` (`0010`).
+
+  ```
+      ↓↓↓↓
+  00000010 = 0x02 ("Temp" and "Trip")
+  10000010 = 0x82 ("Temp" and "Clock")
+  ```
+
+- Byte 5: LSB
+- Byte 6: MSB
+- Value: (0xB6+B5)/10
 
   e.g.
 
@@ -312,10 +368,17 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
 
 #### Range
 
-- Range is displayed only when byte 7 is either `0x03` ("Trip" and "Range"), or `0x83` ("Clock" and "Range").
-- B5: Range LSB
-- B6: Range MSB
-- (0xB6+B5)/10
+- Range is displayed only when byte 7 low nibble is `3` (`0011`).
+
+  ```
+      ↓↓↓↓
+  00000011 = 0x03 ("Trip" and "Range")
+  10000011 = 0x83 ("Clock" and "Range")
+  ```
+
+- Byte 5: LSB
+- Byte 6: MSB
+- Value: (0xB6+B5)/10
 
   e.g.
 
@@ -328,39 +391,52 @@ The clock is only displayed when byte 7 bit 0 is `1`. (`0` is trip odometer)
 
 #### Ave. Cons.
 
-- Average fuel consumption is displayed only when byte 7 is either `0x04` ("Trip" and "Ave. Cons."), or `0x84` ("Clock" and "Ave. Cons.").
+- Average fuel consumption is displayed only when byte 7 low nibble is `4` (`0100`).
+
+  ```
+      ↓↓↓↓
+  00000100 = 0x04 ("Trip" and "Ave. Cons.")
+  10000100 = 0x84 ("Clock" and "Ave. Cons.")
+  ```
+
 - Byte 5: LSB
 - Byte 6: MSB
-- (0xB6+B5)/10
+- Value: (0xB6+B5)/10
 
   e.g.
 
   ```
                        B5 B6 B7
-  0x61A 79 FB 01 D7 C7 43 00 04  # 0x0043 to decimal = 67 → 67/10 = 6.7 l/100km
+  0x61A 79 FB 01 D7 C7 43 00 04  # 0x0043 to decimal = 67 → 67/10 = 6.7
   ```
 
 #### Cons.
 
-Current fuel consumption. Displayed only when byte 7 is either `0x09` ("Trip" and "Cons."), or `0x89` ("Clock" and "Cons.").
+- Current fuel consumption. Displayed only when byte 7 low nibble is `9` (`1001`).
+
+  ```
+      ↓↓↓↓
+  00001001 = 0x09 ("Trip" and "Cons.")
+  10001001 = 0x89 ("Clock" and "Cons.")
+  ```
 
 - Byte 5: Consumption LSB. Increments of `0.1`
 - Byte 6: Consumption MSB. Increments of `25.6`
-- (0xB6+B5)/10
+- Value: (0xB6+B5)/10
 
   e.g.
 
   ```
                        B5 B6 B7
-  0x61A 79 FB 01 DA C7 1C 00 09  # 0x001C → to decimal = 28  →  28/10 =  2.8 l/100km
-  0x61A 79 FB 01 D9 C7 1D 00 09  # 0x001D → to decimal = 29  →  29/10 =  2.9 l/100km
-  0x61A 79 FB 01 D9 C7 2F 00 09  # 0x002F → to decimal = 47  →  47/10 =  4.7 l/100km
-  0x61A 79 FB 01 D8 C7 43 00 09  # 0x0043 → to decimal = 67  →  67/10 =  6.7 l/100km
+  0x61A 79 FB 01 DA C7 1C 00 09  # 0x001C → to decimal = 28  →  28/10 =  2.8
+  0x61A 79 FB 01 D9 C7 1D 00 09  # 0x001D → to decimal = 29  →  29/10 =  2.9
+  0x61A 79 FB 01 D9 C7 2F 00 09  # 0x002F → to decimal = 47  →  47/10 =  4.7
+  0x61A 79 FB 01 D8 C7 43 00 09  # 0x0043 → to decimal = 67  →  67/10 =  6.7
 
-                       FF 00 09  # 0x00FF → to decimal = 255 → 255/10 = 25.5 l/100km
-                       00 01 09  # 0x0100 → to decimal = 256 → 256/10 = 25.6 l/100km
-                       01 01 09  # 0x0101 → to decimal = 257 → 257/10 = 25.7 l/100km
-                       02 01 09  # 0x0102 → to decimal = 258 → 258/10 = 25.8 l/100km
+                       FF 00 09  # 0x00FF → to decimal = 255 → 255/10 = 25.5
+                       00 01 09  # 0x0100 → to decimal = 256 → 256/10 = 25.6
+                       01 01 09  # 0x0101 → to decimal = 257 → 257/10 = 25.7
+                       02 01 09  # 0x0102 → to decimal = 258 → 258/10 = 25.8
   ```
 
 - When `--.-` is displayed, B5 will be `FE`, B6 will be `7F`
@@ -372,31 +448,47 @@ Current fuel consumption. Displayed only when byte 7 is either `0x09` ("Trip" an
 
 #### Ave. Speed
 
-- Average speed is only displayed when byte 7 is either `0x01` ("Trip" and "Ave. Speed"), or `0x81` ("Clock" and "Ave. Speed").
-- (0xB6+B5)/10
+- Average speed is only displayed when byte 7 is either
+
+  ```
+      ↓↓↓↓
+  00000001 0x01 ("Trip" and "Ave. Speed")
+  10000001 0x81 ("Clock" and "Ave. Speed")
+  ```
+
+- Byte 5: LSB
+- Byte 6: MSB
+- Value: (0xB6+B5)/10
 
   e.g.
 
   ```
                        B5 B6 B7
-  0x61A 5B 03 02 6A 41 D2 01 01  # 0x01D2 → to decimal = 466 → 466/10 = 46.6 km/h
-  0x61A 78 FB 01 CB 47 FE 01 01  # 0x01FE → to decimal = 510 → 510/10 = 51.0 km/h
+  0x61A 5B 03 02 6A 41 D2 01 01  # 0x01D2 → to decimal = 466 → 466/10 = 46.6
+  0x61A 78 FB 01 CB 47 FE 01 01  # 0x01FE → to decimal = 510 → 510/10 = 51.0
   ```
 
 #### Speed
 
-- Speed is displayed only when byte 7 is either `0x07` ("Trip" and "Speed"), or `0x87` ("Clock" and "Speed").
-- Byte 5: LSB.
-- Byte 6: MSB
-- (0xB6+B5)/10
+- Speed is displayed only when byte 7 low nibble is `7` (`0111`).
+
+  ```
+      ↓↓↓↓
+  00000111 = 0x07 ("Trip" and "Speed")
+  10000111 = 0x87 ("Clock" and "Speed")
+  ```
+
+- Byte 5: Value LSB.
+- Byte 6: Value MSB
+- Value: (0xB6+B5)/10
 
   e.g.
 
   ```
                        B5 B6 B7
-  0x61A 77 FB 01 BF 47 0E 01 07  # 0x010E → to decimal = 270 → 270/10 = 27 km/h
-  0x61A 77 FB 01 BF 47 36 01 07  # 0x0136 → to decimal = 310 → 310/10 = 31 km/h
-  0x61A 77 FB 01 CF 47 E4 02 07  # 0x02E4 → to decimal = 740 → 740/10 = 74 km/h
+  0x61A 77 FB 01 BF 47 0E 01 07  # 0x010E → to decimal = 270 → 270/10 = 27
+  0x61A 77 FB 01 BF 47 36 01 07  # 0x0136 → to decimal = 310 → 310/10 = 31
+  0x61A 77 FB 01 CF 47 E4 02 07  # 0x02E4 → to decimal = 740 → 740/10 = 74
   ```
 
 When `---` is displayed, B5 will be `FE`, B6 will be `7F`
