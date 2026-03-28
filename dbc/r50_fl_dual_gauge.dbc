@@ -1,0 +1,46 @@
+
+
+BU_:
+
+BO_ 790 x316: 8 Vector__XXX
+	SG_ RPM : 16|16@1+ (0.15625,0) [0|8000] "RPM" 0 0
+
+BO_ 1557 x615: 8 Vector__XXX
+	SG_ Bonnet : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ OutsideTemperature : 24|7@1+ (1,0) [-128|127] "°C" 0 0
+	SG_ Outside_Temperature_Sign : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Handbrake : 33|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1562 x61A: 8 Vector__XXX
+	SG_ Odometer : 0|20@1+ (1,0) [0|999999] "" Vector__XXX
+	SG_ Inspection_Text : 20|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Clock_Icon : 21|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Oil_Service_Text : 22|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Units_KM_Miles : 23|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Trip_Odometer : 24|14@1+ (0.1,0) [0|999.9] "" Vector__XXX
+	SG_ OBC_Value : 40|16@1- (0.1,0) [0|0] "" Vector__XXX
+	SG_ OBC_Option : 56|4@1+ (1,0) [1|9] "" Vector__XXX
+	SG_ Clock_PM : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Clock_AM : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+	SG_ Clock_Or_Trip : 63|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1567 x61F: 8 Vector__XXX
+    SG_ Instrument_Brightness_Level : 8|6@1+ (1,0) [0|63] "" Vector__XXX
+    SG_ Turn_Signal_Left_Light : 22|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ High_Beam_Light : 23|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Engine_Light : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Handbrake_Light : 25|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ ABS_Light : 26|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Turn_Signal_Right_Light : 27|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Engine_Oil_Pressure_Light : 28|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ EML_Light : 29|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ ASC_Light : 30|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Cruise_Control_Light : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+    SG_ Battery_Light : 33|1@1+ (1,0) [0|0] "" Vector__XXX
+
+CM_ SG_ 1557 Outside_Temperature "Outside Temperature, increments of 1°C";
+CM_ SG_ 1557 Outside_Temperature_Sign "0: Positve temperature, 1: Negative temperature";
+CM_ SG_ 1557 Bonnet "0: closed, 1: open";
+CM_ SG_ 1562 OBC_Option "1:ave speed, 2:temp, 3:range, 4=ave cons, 7:speed, 9:cons";
+CM_ SG_ 1562 Clock_Or_Trip "On facelift cars. 0:Trip ,1:Clock.";
+CM_ SG_ 1562 Units_KM_Miles "0: Kilometers, 1: Miles";
