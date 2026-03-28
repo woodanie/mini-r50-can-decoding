@@ -372,7 +372,7 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
 - Outside air temperature is displayed only when byte 7 low nibble is `2` (`0010`).
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓      ↓
   00000010 = 0x02 ("Temp" and "Trip")
   10000010 = 0x82 ("Temp" and "Clock")
   ```
@@ -386,18 +386,18 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
   Positive temp:
 
   ```
-                       B5 B6 B7      B5
-  0x61A 77 FB 01 C6 47 C3 00 02  # 0xC3 → to decimal = 195 → 195/10 = 19.5°C
-  0x61A 78 FB 01 D1 47 C8 00 02  # 0xC8 → to decimal = 200 → 200/10 = 20°C
+                       B5 B6 B7      B6B5
+  0x61A 77 FB 01 C6 47 C3 00 02  # 0x00C3 → to decimal = 195 → 195/10 = 19.5°C
+  0x61A 78 FB 01 D1 47 C8 00 02  # 0x00C8 → to decimal = 200 → 200/10 = 20°C
   ```
 
   Negative temp:
 
   ```
                        B5 B6 B7
-  0x61A 60 54 00 F6 7F FB FF 02  # -0.5°C
-  0x61A 60 54 00 F6 7F F6 FF 02  # -1.0°C
-  0x61A 60 54 00 F6 7F F1 FF 02  # -1.5°C
+  0x61A 77 FB 01 C6 47 FB FF 02  # -0.5°C
+  0x61A 77 FB 01 C6 47 F6 FF 02  # -1.0°C
+  0x61A 77 FB 01 C6 47 F1 FF 02  # -1.5°C
   ```
 
 #### Range
@@ -405,7 +405,7 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
 - Range is displayed only when byte 7 low nibble is `3` (`0011`).
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓      ↓
   00000011 = 0x03 ("Trip" and "Range")
   10000011 = 0x83 ("Clock" and "Range")
   ```
@@ -423,12 +423,19 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
   0x61A 79 FB 01 D4 47 3A 07 03  # 185 range
   ```
 
+- When `---` is displayed, B5 will be `FE`, B6 will be `7F`
+
+  ```
+                       B5 B6 B7      B6B5
+  0x61A A0 0A 02 00 40 FE 7F 03  # 0x7FFE
+  ```
+
 #### Ave. Cons.
 
 - Average fuel consumption is displayed only when byte 7 low nibble is `4` (`0100`).
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓      ↓
   00000100 = 0x04 ("Trip" and "Ave. Cons.")
   10000100 = 0x84 ("Clock" and "Ave. Cons.")
   ```
@@ -440,28 +447,34 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
   e.g.
 
   ```
-                       B5 B6 B7
-  0x61A 79 FB 01 D7 C7 43 00 04  # 0x0043 to decimal = 67 → 67/10 = 6.7
+                       B5 B6 B7      B6B5
+  0x61A 79 FB 01 D7 C7 43 00 04  # 0x0043 → to decimal = 67 → 67/10 = 6.7
   ```
+
+- When `--.-` is displayed, B5 will be `FE`, B6 will be `7F`
+
+  ```
+                       B5 B6 B7      B6B5
+  0x61A 79 FB 01 D7 C7 FE 7F 04  # 0x7FFE
 
 #### Cons.
 
 - Current fuel consumption. Displayed only when byte 7 low nibble is `9` (`1001`).
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓      ↓
   00001001 = 0x09 ("Trip" and "Cons.")
   10001001 = 0x89 ("Clock" and "Cons.")
   ```
 
-- Byte 5: Consumption LSB. Increments of `0.1`
-- Byte 6: Consumption MSB. Increments of `25.6`
+- Byte 5: LSB. Increments of `0.1`
+- Byte 6: MSB. Increments of `25.6`
 - Value: (0xB6+B5)/10
 
   e.g.
 
   ```
-                       B5 B6 B7
+                       B5 B6 B7      B6B5
   0x61A 79 FB 01 DA C7 1C 00 09  # 0x001C → to decimal = 28  →  28/10 =  2.8
   0x61A 79 FB 01 D9 C7 1D 00 09  # 0x001D → to decimal = 29  →  29/10 =  2.9
   0x61A 79 FB 01 D9 C7 2F 00 09  # 0x002F → to decimal = 47  →  47/10 =  4.7
@@ -476,8 +489,8 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
 - When `--.-` is displayed, B5 will be `FE`, B6 will be `7F`
 
   ```
-                       B5 B6 B7
-  0x61A 77 FB 01 BE C7 FE 7F 09  # displays --.-
+                       B5 B6 B7      B6B5
+  0x61A 77 FB 01 BE C7 FE 7F 09  # 0x7FFE
   ```
 
 #### Ave. Speed
@@ -485,7 +498,7 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
 - Average speed is only displayed when byte 7 is either
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓    ↓
   00000001 0x01 ("Trip" and "Ave. Speed")
   10000001 0x81 ("Clock" and "Ave. Speed")
   ```
@@ -497,9 +510,16 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
   e.g.
 
   ```
-                       B5 B6 B7
+                       B5 B6 B7      B6B5
   0x61A 5B 03 02 6A 41 D2 01 01  # 0x01D2 → to decimal = 466 → 466/10 = 46.6
   0x61A 78 FB 01 CB 47 FE 01 01  # 0x01FE → to decimal = 510 → 510/10 = 51.0
+  ```
+
+- When `---.-` is displayed, B5 will be `FE`, B6 will be `7F`
+
+  ```
+                       B5 B6 B7      B6B5
+  0x61A A0 0A 02 00 40 FE 7F 01  # 0x7FFE
   ```
 
 #### Speed
@@ -507,13 +527,13 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
 - Speed is displayed only when byte 7 low nibble is `7` (`0111`).
 
   ```
-      ↓↓↓↓
+      ↓↓↓↓      ↓
   00000111 = 0x07 ("Trip" and "Speed")
   10000111 = 0x87 ("Clock" and "Speed")
   ```
 
-- Byte 5: Value LSB.
-- Byte 6: Value MSB
+- Byte 5: LSB
+- Byte 6: MSB
 - Value: (0xB6+B5)/10
 
   e.g.
@@ -525,12 +545,12 @@ Units for the on-board computer options are set in byte 4 bit 0, and bit 1.
   0x61A 77 FB 01 CF 47 E4 02 07  # 0x02E4 → to decimal = 740 → 740/10 = 74
   ```
 
-When `---` is displayed, B5 will be `FE`, B6 will be `7F`
+- When `---` is displayed, B5 will be `FE`, B6 will be `7F`
 
-```
-                     B5 B6
-0x61A 68 5B 00 F6 7F FE 7F 07
-```
+  ```
+                       B5 B6 B7      B6B5
+  0x61A 68 5B 00 F6 7F FE 7F 07  # 0x7FFE
+  ```
 
 ## 0x61F (1567)
 
@@ -556,24 +576,23 @@ Example:
 
 ### Instrument cluster LED brightness
 
-Brighness of center and tachometer gauge.
+- Brighness of center and tachometer gauge is a 6 bit signal in byte 1.
+- When lights are off, B1 is `3F` regardless of brightness when lights were on.
 
-When lights are off, B1 is `3F` regardless of brightness when lights were on.
-
-0x61F Byte 1
-- `00` (`00000000`) = minumum brightness
-- `3F` (`00111111`) = maximum brightness, or when lights off.
+- Byte 1
+  - `00` (`00000000`) = minumum brightness
+  - `3F` (`00111111`) = maximum brightness, or when lights off.
 
 ### Indicator/warning lights
 
 #### Dual gauges (Chrono pack or Navigation system)
 
-- 0x61F, Byte 2. Same on Pre-Facelift and Facelift gauges.
+- Byte 2. Same on Pre-Facelift and Facelift gauges.
   - `02` (`00000010`) = No indicator/warning lights
   - `42` (`01000010`) = Left indicator
   - `82` (`10000010`) = High beam
 
-- 0x61F Byte 3. Same on Pre-Facelift and Facelift gauges.
+- Byte 3. Same on Pre-Facelift and Facelift gauges.
   - `00` (`00000000`) = No indicator/warning lights
   - `01` (`00000001`) = Check engine
   - `02` (`00000010`) = Handbrake
@@ -584,13 +603,13 @@ When lights are off, B1 is `3F` regardless of brightness when lights were on.
   - `40` (`01000000`) = ASC
   - `80` (`10000000`) = Cruise control
 
-- 0x61F Byte 4. Same on Pre-Facelift and Facelift gauges.
+- Byte 4. Same on Pre-Facelift and Facelift gauges.
   - `40` (`01000000`) = No indicator/warning lights
   - `42` (`01000010`) = Battery
 
 #### Single tachometer gauge
 
-0x61F Byte 3
+Byte 3
 - `20` (`00100000`) = Cruise control
 - `40` (`01000000`) = ASC
 - `80` (`10000000`) = Seatbelt
